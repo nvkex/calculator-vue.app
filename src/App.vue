@@ -1,7 +1,7 @@
 <template>
   <main class="calculator">
     <div class="display">
-      000
+      {{display}}
     </div>
     <div class="buttons">
       <div
@@ -10,6 +10,7 @@
         v-bind:key="{ index }"
       >
         <div
+          @click = "buttonClick(button)"
           :class="{ operator: button.type == 'operator', special: button.type == 'special' }"
           class="button"
           v-for="(button, index) in row"
@@ -25,7 +26,36 @@
 <script>
 export default {
   name: "App",
+  methods:{
+    buttonClick(button){
+      if(button.type == 'number'){
+        if(this.display == '0')
+          this.display = button.text;
+        else
+          this.display += button.text;
+      }
+      else if(button.text == 'CE'){
+          this.display = '0';
+      }
+      else if(button.text == '+/-'){
+        this.display *= -1;
+      }
+      else if(button.text == '←'){
+        if(parseInt(this.display) > '9')
+          this.display = this.display.slice(0,this.display.length-1);
+        else
+          this.display = '0';
+      }
+      else if(button.type == 'operator'){
+        this.previousValue = Number(this.display);
+        this.currentOperator = button.text;
+      }
+    }
+  },
   data: () => ({
+    display: '0',
+    previousValue: null,
+    currentOperator: '',
     buttonRows: [
       [
         {
@@ -37,7 +67,7 @@ export default {
           type: "special",
         },
         {
-          text: "C",
+          text: "←",
           type: "special",
         },
         {
@@ -123,6 +153,18 @@ export default {
 </script>
 
 <style>
+body{
+  overflow: hidden;
+  /* background-repeat: no-repeat;
+  background: url('./assets/lgKPRvT.jpg'), rgba(0, 0, 0, 0.6);
+  background-blend-mode: overlay; */
+  background:linear-gradient(#8cdbdb ,#FFCCCC);
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  width:100vw;
+  height:100vh;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -141,8 +183,8 @@ export default {
 .calculator {
   overflow:hidden;
   min-width: 250px;
-  opacity: 0.9;
-  box-shadow: 0px 0px 20px 8px rgba(0, 0, 0, 0.24);
+  opacity: 0.95;
+  box-shadow: 0px 0px 20px 4px rgba(0, 0, 0, 0.2);
   color: white;
   width: 40%;
   background: rgb(39, 39, 39);
