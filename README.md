@@ -1,8 +1,8 @@
 # calculator
 ## TODOs
-    * [ ] Prevent consecutive appending of operators
-    * [ ] Real Time Evaluation
-    * [ ] Scientific Calculator
+* [ ] Prevent consecutive appending of operators
+* [ ] Real Time Evaluation
+* [ ] Scientific Calculator
 
 ## Project setup
 ```
