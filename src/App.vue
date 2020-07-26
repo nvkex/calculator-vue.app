@@ -1,5 +1,8 @@
 <template>
   <main class="calculator">
+    <div class="prev-display">
+      {{previousValue}}
+    </div>
     <div class="display">
       {{display}}
     </div>
@@ -7,14 +10,14 @@
       <div
         class="button-row"
         v-for="(row, index) in buttonRows"
-        v-bind:key="{ index }"
+        v-bind:key="index"
       >
         <div
           @click = "buttonClick(button)"
           :class="{ operator: button.type == 'operator', special: button.type == 'special' }"
           class="button"
           v-for="(button, index) in row"
-          v-bind:key="{ index }"
+          v-bind:key="index"
         >
           {{ button.text }}
         </div>
@@ -33,9 +36,15 @@ export default {
           this.display = button.text;
         else
           this.display += button.text;
+        if(this.currentOperator != ''){
+          this.display = button.text;
+          this.currentOperator = '';
+        }
       }
       else if(button.text == 'CE'){
           this.display = '0';
+          this.previousValue = '';
+          this.fullExpr = '';
       }
       else if(button.text == '+/-'){
         this.display *= -1;
@@ -46,16 +55,38 @@ export default {
         else
           this.display = '0';
       }
-      else if(button.type == 'operator'){
-        this.previousValue = Number(this.display);
+      else if(button.text == '='){
+        this.previousValue += this.display;
+        this.fullExpr += this.display;
+        this.fullExpr = this.fullExpr.replace(/×/g,"*");
+        this.fullExpr = this.fullExpr.replace(/÷/g,"/");
+
+        let res = eval(this.fullExpr);
+        this.display = res;
+
+        this.fullExpr = this.fullExpr.replace(/\*/g,"×");
+        this.fullExpr = this.fullExpr.replace(/\//g,"÷");
         this.currentOperator = button.text;
+        
+      }
+      else if(button.type == 'operator'){
+        
+        if(this.currentOperator == '='){
+          this.previousValue +=button.text;
+        }
+        else{
+          this.previousValue += this.display + button.text;
+          this.currentOperator = button.text;
+          this.fullExpr = "("+this.fullExpr + this.display +")" + button.text;
+        }
       }
     }
   },
   data: () => ({
     display: '0',
-    previousValue: null,
+    previousValue: '',
     currentOperator: '',
+    fullExpr: '',
     buttonRows: [
       [
         {
@@ -89,7 +120,7 @@ export default {
           type: "number",
         },
         {
-          text: "*",
+          text: "×",
           type: "operator",
         },
       ],
@@ -172,6 +203,13 @@ body{
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+.prev-display{
+  color:grey;
+  text-align: right;
+  font-size: 20px;
+  padding: 10px 30px;
 }
 
 .display{
