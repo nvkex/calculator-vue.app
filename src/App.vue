@@ -1,10 +1,10 @@
 <template>
   <main class="calculator">
     <div class="prev-display">
-      {{previousValue}}
+      {{ previousValue }}
     </div>
     <div class="display">
-      {{display}}
+      {{ display }}
     </div>
     <div class="buttons">
       <div
@@ -13,8 +13,12 @@
         v-bind:key="index"
       >
         <div
-          @click = "buttonClick(button)"
-          :class="{ operator: button.type == 'operator', special: button.type == 'special' }"
+          @click="buttonClick(button)"
+          :class="{
+            operator: button.type == 'operator',
+            special: button.type == 'special',
+            equal: button.type == 'equal',
+          }"
           class="button"
           v-for="(button, index) in row"
           v-bind:key="index"
@@ -29,64 +33,63 @@
 <script>
 export default {
   name: "App",
-  methods:{
-    buttonClick(button){
-      if(button.type == 'number'){
-        if(this.display == '0')
+  methods: {
+    evaluate(button) {
+      this.previousValue += this.display;
+      this.fullExpr += this.display;
+      this.fullExpr = this.fullExpr.replace(/×/g, "*");
+      this.fullExpr = this.fullExpr.replace(/÷/g, "/");
+
+      let res = eval(this.fullExpr);
+      this.display = res;
+
+      this.fullExpr = this.fullExpr.replace(/\*/g, "×");
+      this.fullExpr = this.fullExpr.replace(/\//g, "÷");
+      this.currentOperator = button.text;
+      console.log(this.fullExpr);
+    },
+    buttonClick(button) {
+      if (button.type == "number") {
+        if (this.display == "0") this.display = button.text;
+        else this.display += button.text;
+        if (this.currentOperator != "") {
           this.display = button.text;
-        else
-          this.display += button.text;
-        if(this.currentOperator != ''){
-          this.display = button.text;
-          this.currentOperator = '';
+          this.currentOperator = "";
         }
-      }
-      else if(button.text == 'CE'){
-          this.display = '0';
-          this.previousValue = '';
-          this.fullExpr = '';
-      }
-      else if(button.text == '+/-'){
+      } 
+      else if (button.text == "CE") {
+        this.display = "0";
+        this.previousValue = "";
+        this.fullExpr = "";
+      } 
+      else if (button.text == "+/-") {
         this.display *= -1;
-      }
-      else if(button.text == '←'){
-        if(parseInt(this.display) > '9')
-          this.display = this.display.slice(0,this.display.length-1);
-        else
-          this.display = '0';
-      }
-      else if(button.text == '='){
-        this.previousValue += this.display;
-        this.fullExpr += this.display;
-        this.fullExpr = this.fullExpr.replace(/×/g,"*");
-        this.fullExpr = this.fullExpr.replace(/÷/g,"/");
-
-        let res = eval(this.fullExpr);
-        this.display = res;
-
-        this.fullExpr = this.fullExpr.replace(/\*/g,"×");
-        this.fullExpr = this.fullExpr.replace(/\//g,"÷");
-        this.currentOperator = button.text;
-        
-      }
-      else if(button.type == 'operator'){
-        
-        if(this.currentOperator == '='){
-          this.previousValue +=button.text;
-        }
-        else{
+      } 
+      else if (button.text == "←") {
+        if (parseInt(this.display) > "9")
+          this.display = this.display.slice(0, this.display.length - 1);
+        else this.display = "0";
+      } 
+      else if (button.text == "=") {
+        this.evaluate(button);
+      } 
+      else if (button.type == "operator") {
+        if (this.currentOperator == "=") {
+          this.previousValue += button.text;
+        } else {
           this.previousValue += this.display + button.text;
           this.currentOperator = button.text;
-          this.fullExpr = "("+this.fullExpr + this.display +")" + button.text;
+          this.fullExpr =
+            "(" + this.fullExpr + this.display + ")" + button.text;
         }
       }
-    }
+    },
   },
   data: () => ({
-    display: '0',
-    previousValue: '',
-    currentOperator: '',
-    fullExpr: '',
+    display: "0",
+    previousValue: "",
+    currentOperator: "",
+    fullExpr: "",
     buttonRows: [
       [
         {
@@ -163,7 +166,7 @@ export default {
       [
         {
           text: "+/-",
-          type: "special",
+          type: "abs",
         },
         {
           text: "0",
@@ -175,7 +178,7 @@ export default {
         },
         {
           text: "=",
-          type: "operator",
+          type: "equal",
         },
       ],
     ],
@@ -184,17 +187,17 @@ export default {
 </script>
 
 <style>
-body{
+body {
   overflow: hidden;
   /* background-repeat: no-repeat;
   background: url('./assets/lgKPRvT.jpg'), rgba(0, 0, 0, 0.6);
   background-blend-mode: overlay; */
-  background:linear-gradient(#8cdbdb ,#FFCCCC);
-  display:flex;
+  background: linear-gradient(#8cdbdb, #ffcccc);
+  display: flex;
   justify-content: center;
   align-items: center;
-  width:100vw;
-  height:100vh;
+  width: 100vw;
+  height: 100vh;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -205,21 +208,21 @@ body{
   margin-top: 60px;
 }
 
-.prev-display{
-  color:grey;
+.prev-display {
+  color: grey;
   text-align: right;
   font-size: 20px;
   padding: 10px 30px;
 }
 
-.display{
+.display {
   text-align: right;
   font-size: 48px;
   padding: 30px;
 }
 
 .calculator {
-  overflow:hidden;
+  overflow: hidden;
   min-width: 250px;
   opacity: 0.95;
   box-shadow: 0px 0px 20px 4px rgba(0, 0, 0, 0.2);
@@ -251,11 +254,11 @@ body{
   align-items: center;
 }
 
-.button:hover{
+.button:hover {
   background: rgb(85, 85, 85);
 }
 
-.button:active{
+.button:active {
   background: rgb(116, 116, 116);
 }
 
@@ -267,4 +270,7 @@ body{
   background: rgba(22, 22, 22, 0.89);
 }
 
+.equal {
+  background: rgba(66, 66, 66, 0.815);
+}
 </style>
