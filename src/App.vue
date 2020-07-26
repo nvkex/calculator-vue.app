@@ -46,7 +46,6 @@ export default {
       this.fullExpr = this.fullExpr.replace(/\*/g, "×");
       this.fullExpr = this.fullExpr.replace(/\//g, "÷");
       this.currentOperator = button.text;
-      console.log(this.fullExpr);
     },
     buttonClick(button) {
       if (button.type == "number") {
@@ -209,6 +208,7 @@ body {
 }
 
 .prev-display {
+  overflow: auto;
   color: grey;
   text-align: right;
   font-size: 20px;
@@ -216,6 +216,7 @@ body {
 }
 
 .display {
+  overflow: auto;
   text-align: right;
   font-size: 48px;
   padding: 30px;
